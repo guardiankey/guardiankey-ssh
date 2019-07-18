@@ -12,6 +12,7 @@ This is a implementation of GuardianKey Auth Security Lite, that it free until 1
 Just do download of .deb package and install with "apt" command. Example:
 
 \# wget https://github.com/pauloangelo/guardiankey-ssh/raw/master/guardiankey-ssh_1.0-1.deb 
+
 \# apt install ./guardiankey-ssh_1.0-1.deb
 
 After, you need create an account in GuardianKey. You can visit https://panel.guardiankey.io, or execute:
