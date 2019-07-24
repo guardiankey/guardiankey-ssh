@@ -1,0 +1,4 @@
+#!/bin/sh -e
+
+echo "sshd: /etc/guardiankey/ssh.deny" >> /etc/hosts.deny
+
