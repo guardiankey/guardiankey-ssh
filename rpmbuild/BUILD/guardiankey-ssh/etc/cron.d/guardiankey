@@ -1,2 +1,0 @@
-## GuardianKey - Unlock benned IPs
-*/10 * * * * /usr/bin/python /usr/lib/guardiankey/gkUnlock.py

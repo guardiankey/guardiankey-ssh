@@ -1,9 +1,0 @@
-[Unit]
-Description=GuardianKey for SSH service
-
-[Service]
-Type=simple
-ExecStart=/usr/bin/python /usr/lib/guardiankey/gkssh.py &
-
-[Install]
-WantedBy=multi-user.target

@@ -15,13 +15,23 @@ Just do download of .deb package and install with "apt" command. Example:
 
 \# apt install ./guardiankey-ssh_1.0-2.deb
 
-After, you need create an account in GuardianKey. You can visit https://panel.guardiankey.io, or execute:
+## RHEL/CenOS 7
+
+You can install with this command:
+
+\# yum install  https://github.com/pauloangelo/guardiankey-ssh/raw/master/guardiankey-ssh-1-0.noarch.rpm
+
+# Configure
+
+After install, you need create an account in GuardianKey. You can visit https://panel.guardiankey.io, or execute:
 
 \# python /usr/lib/guardiankey/register.py
 
 With your credencials, you should configure /etc/guardiankey/gk.conf. Finally, you starts the guardiankey-ssh service:
 
 \# systemctl enable --now guardiankey-ssh
+
+
 
 
 # Licence
