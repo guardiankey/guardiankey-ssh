@@ -15,7 +15,7 @@ Just do download of .deb package and install with "apt" command. Example:
 
 \# apt install ./guardiankey-ssh_1.0-2.deb
 
-## RHEL/CenOS 7
+## RHEL/CentOS 7
 
 You can install with this command:
 
