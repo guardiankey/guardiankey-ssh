@@ -26,16 +26,25 @@ then
     fail "python3 >= 3.7 is required"
 fi
 
-if ! python3 - <<'PY'
-import importlib
-importlib.import_module("requests")
+if ! MISSING="$(python3 - <<'PY'
+import sys
+missing = []
+for mod in ("requests", "configparser"):
+    try:
+        __import__(mod)
+    except Exception:
+        missing.append(mod)
+if missing:
+    print(" ".join(missing))
+    sys.exit(1)
+sys.exit(0)
 PY
-then
-    echo "Missing Python dependency: requests"
+)"; then
+    echo "Missing Python dependency: $MISSING"
     echo "Install suggestions:"
-    echo "  Debian/Ubuntu: apt-get install -y python3-requests"
-    echo "  Alma/RHEL: dnf install -y python3-requests"
-    echo "  Fallback: pip3 install requests"
+    echo "  Debian/Ubuntu: apt-get install -y python3-requests python3-configparser"
+    echo "  Alma/RHEL: dnf install -y python3-requests python3-configparser"
+    echo "  Fallback: pip3 install $MISSING"
     exit 1
 fi
 
@@ -84,8 +93,6 @@ fi
 cat > "$INSTALL_ETC/gk.conf" <<EOF
 ## GuardianKey SSH configuration
 [REGISTER]
-email =
-agentid =
 key = $KEY
 iv = $IV
 service = SSH
