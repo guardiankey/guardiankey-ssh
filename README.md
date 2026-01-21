@@ -13,11 +13,23 @@ This plugin integrates SSH authentication events with GuardianKey (GKAS). A Guar
 
 # Install
 
-Clone the repository and run the installer:
+Clone the repository (using git):
 
 ```sh
 git clone https://github.com/guardiankey/guardiankey-ssh
 cd guardiankey-ssh
+'''
+
+Alternatively, you can use the ZIP download:
+
+'''sh
+curl -o guardiankey-ssh-master.zip https://codeload.github.com/guardiankey/guardiankey-ssh/zip/refs/heads/master
+unzip guardiankey-ssh-master
+```
+
+Then proceed with the installation:
+
+```sh 
 sh install.sh
 ```
 
