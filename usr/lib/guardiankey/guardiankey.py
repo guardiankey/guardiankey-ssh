@@ -64,11 +64,11 @@ def checkaccess(username,ip,eventtime,loginfailed=0,eventType='Authentication'):
         return {"response": "ERROR"}
     tmpdata = {}
     tmpdata['id'] = GKconfig['authgroupid']
-    tmpdata['message'] = message
-    message_json = json.dumps(message, sort_keys=True, separators=(",", ":"))
-    tmpdata['hash'] = hashlib.sha256((message_json+key+iv).encode('utf-8')).hexdigest()
+    tmpdata['message'] = json.dumps(message, sort_keys=True, separators=(",", ":"))
+    tmpdata['hash'] = hashlib.sha256((tmpdata['message']+key+iv).encode('utf-8')).hexdigest()
     data = json.dumps(tmpdata)
-    url = GKconfig['api_url']+'/checkaccess'
+    url = GKconfig['api_url']+'/v2/checkaccess'
+
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
     try:
         query = requests.post(url, data=data, headers=headers, timeout=4)

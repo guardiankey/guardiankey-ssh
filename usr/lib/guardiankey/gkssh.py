@@ -15,9 +15,14 @@ GKconfig = configp['REGISTER']
 def doAction(ip):
     now = datetime.datetime.now()
     blockdate = int(now.timestamp())
-    ipline = f"sshd,ssh: {ip} #{blockdate}\n"
+    ipline = f"sshd,ssh: {ip} #gk:{blockdate}\n"
     with open('/etc/guardiankey/ssh.deny', 'a') as f:
         f.write(ipline)
+    try:
+        with open('/etc/hosts.deny', 'a') as f:
+            f.write(ipline)
+    except Exception:
+        pass
 
 
 def _kill_ssh_sessions(username, ip):
@@ -67,7 +72,8 @@ def send(line):
             loginfailed = 0
         else:
             loginfailed = 1
-        result = guardiankey.checkaccess(jlog.get('user'), jlog.get('ip'), jlog.get('time'), loginfailed, 'Authentication')
+        username = GKconfig.get('agentid')+'-'+jlog.get('user')
+        result = guardiankey.checkaccess(username, jlog.get('ip'), jlog.get('time'), loginfailed, 'Authentication')
         if result.get('response') == 'BLOCK' and GKconfig.get('block') == '1':
             with open('/var/log/guardiankey.log', 'a') as f:
                 f.write(json.dumps(result) + '\n')
