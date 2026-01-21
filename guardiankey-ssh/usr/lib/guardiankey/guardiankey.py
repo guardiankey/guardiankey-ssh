@@ -60,13 +60,10 @@ def checkaccess(username,ip,eventtime,loginfailed=0,eventType='Authentication'):
     key      = GKconfig['key']
     iv       = GKconfig['iv']
     message = create_message(username,ip,eventtime,loginfailed,eventType)
-    if message is None:
-        return {"response": "ERROR"}
     tmpdata = {}
     tmpdata['id'] = GKconfig['authgroupid']
     tmpdata['message'] = message
-    message_json = json.dumps(message, sort_keys=True, separators=(",", ":"))
-    tmpdata['hash'] = hashlib.sha256((message_json+key+iv).encode('utf-8')).hexdigest()
+    tmpdata['hash'] = hashlib.sha256((message+key+iv).encode('utf-8')).hexdigest()
     data = json.dumps(tmpdata)
     url = GKconfig['api_url']+'/checkaccess'
     headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
@@ -77,3 +74,4 @@ def checkaccess(username,ip,eventtime,loginfailed=0,eventType='Authentication'):
         
     except:
         return {"response":"ERROR"}
+

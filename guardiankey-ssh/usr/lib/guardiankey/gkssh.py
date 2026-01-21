@@ -12,7 +12,7 @@ configp.read('/etc/guardiankey/gk.conf')
 GKconfig = configp['REGISTER']
 def doAction(ip):
     now = datetime.datetime.now()
-    blockdate = int(now.timestamp())
+    blockdate = f"{now.hour}_{now.minute}"
     ipline = f"{ip}#{blockdate}\n"
     with open('/etc/guardiankey/ssh.deny', 'a') as f:
         f.write(ipline)
@@ -27,7 +27,7 @@ def send(line):
         else:
             loginfailed = 1
         result = guardiankey.checkaccess(jlog.get('user'), jlog.get('ip'), jlog.get('time'), loginfailed, 'Authentication')
-        if result.get('response') == 'BLOCK' and GKconfig.get('block') == '1':
+        if result.get('response') == 'ACCEPT' and GKconfig.get('block') == '1':
             with open('/var/log/guardiankey.log', 'a') as f:
                 f.write(json.dumps(result) + '\n')
             doAction(jlog.get('ip'))
@@ -35,50 +35,13 @@ def send(line):
         return result
 
 
-def _candidate_units():
-    units = []
-    conf_unit = GKconfig.get('ssh_unit', '').strip()
-    if conf_unit:
-        units.append(conf_unit)
-    units.extend(['ssh.service', 'sshd.service'])
-    return units
-
-
-def _discover_units():
-    try:
-        res = subprocess.run(
-            ['systemctl', 'list-units', '--type=service', '--all', '--no-legend'],
-            capture_output=True, text=True, timeout=3
-        )
-        if res.returncode != 0:
-            return []
-        found = []
-        for line in res.stdout.splitlines():
-            parts = line.split()
-            if not parts:
-                continue
-            unit = parts[0]
-            if 'ssh' in unit:
-                found.append(unit)
-        return found
-    except FileNotFoundError:
-        return []
-    except Exception:
-        return []
-
-
 def use_journalctl():
-    """Check if journalctl is available and has ssh logs"""
+    """Check if journalctl is available and has ssh logs (ssh.service or sshd.service)"""
     global JOURNAL_UNIT
     JOURNAL_UNIT = None
-    units = _candidate_units()
-    units.extend(_discover_units())
-    seen = set()
+    units = ['ssh.service', 'sshd.service']
     try:
         for unit in units:
-            if not unit or unit in seen:
-                continue
-            seen.add(unit)
             res = subprocess.run(['journalctl', '-n', '1', '-u', unit],
                                  capture_output=True, text=True, timeout=2)
             if res.returncode == 0 and res.stdout.strip():

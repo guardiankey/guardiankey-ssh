@@ -1,41 +1,80 @@
 # GuardianKey SSH plugin
 
-GuardianKey is a service that use AI (Artificial Intelligence) for increase security of logins. More info in https://guardiankey.io
+GuardianKey is a service that uses AI to increase login security. Learn more at https://guardiankey.io and https://guardiankey.io/docs.
 
-This is a implementation of GuardianKey Auth Security Lite, that it free until 10 users. However, can be used in any GuardianKey versions. Info about this in https://guardiankey.io/services/guardiankey-auth-security-lite/
+This plugin integrates SSH authentication events with GuardianKey (GKAS). A GuardianKey account is required.
 
+# Requirements
+
+- Linux with systemd and journalctl
+- Python 3.7+
+- Python package: requests
+- Root access for installation
 
 # Install
 
-## Debian 9/Ubuntu 18.04
+Clone the repository and run the installer:
 
-Just do download of .deb package and install with "apt" command. Example:
+```sh
+git clone http://github.com/guardiankey/guardiankey-ssh/guardiankey-ssh
+cd guardiankey-ssh
+sh install.sh
+```
 
-\# wget https://github.com/pauloangelo/guardiankey-ssh/raw/master/guardiankey-ssh_1.0-2.deb 
+The installer will prompt for your GuardianKey configuration values and write them to `/etc/guardiankey/gk.conf`. It also installs the systemd service.
 
-\# apt install ./guardiankey-ssh_1.0-2.deb
+If the `requests` dependency is missing, install it with one of the following:
 
-## RHEL/CentOS 7
+```sh
+apt-get install -y python3-requests
+```
 
-You can install with this command:
+```sh
+dnf install -y python3-requests
+```
 
-\# yum install  https://github.com/pauloangelo/guardiankey-ssh/raw/master/guardiankey-ssh-1-0.noarch.rpm
+```sh
+pip3 install requests
+```
 
 # Configure
 
-After install, you need create an account in GuardianKey. You can visit https://panel.guardiankey.io, or execute:
+The configuration file is `/etc/guardiankey/gk.conf`. The installer sets:
 
-\# python /usr/lib/guardiankey/register.py
+- `orgid`
+- `authgroupid`
+- `key`
+- `iv`
+- `agentid` (hostname)
 
-With your credencials, you should configure /etc/guardiankey/gk.conf. Finally, you starts the guardiankey-ssh service:
+You can also set `ssh_unit` to point to a custom SSH systemd unit name. If not set, the service tries to auto-detect common units (`ssh.service`, `sshd.service`).
 
-\# systemctl enable --now guardiankey-ssh
+Additional configuration options can be set in /etc/guardiankey/gk.conf:
 
-
-
-
-# Licence
-
-This plugin is licencied by GNU/GPLv3.
+- `api_url` — Override the GuardianKey API endpoint (useful for on‑premise / self‑hosted GKAS). Example: `https://gkas.example.local/api/v1`
+- `auto_response` — Enable automatic response/blocking of SSH attempts. Default: `0` (disabled). Set to `1` to enable automatic blocking.
 
 
+# Service
+
+Manage the service with systemd:
+
+```sh
+systemctl enable --now guardiankey-ssh
+```
+
+To restart:
+
+```sh
+systemctl restart guardiankey-ssh
+```
+
+# Uninstall
+
+```sh
+sh uninstall.sh
+```
+
+# License
+
+This plugin is licensed under GNU/GPLv3.
