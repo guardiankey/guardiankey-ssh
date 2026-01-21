@@ -101,6 +101,19 @@ EOF
 
 chmod 600 "$INSTALL_ETC/gk.conf"
 
+touch /etc/guardiankey/ssh.deny
+chmod 600 /etc/guardiankey/ssh.deny
+
+HOSTS_DENY="/etc/hosts.deny"
+INCLUDE_LINE="include /etc/guardiankey/ssh.deny"
+if [ -f "$HOSTS_DENY" ]; then
+    if ! grep -qF "$INCLUDE_LINE" "$HOSTS_DENY"; then
+        printf "\n# GuardianKey SSH deny list\n%s\n" "$INCLUDE_LINE" >> "$HOSTS_DENY"
+    fi
+else
+    printf "# GuardianKey SSH deny list\n%s\n" "$INCLUDE_LINE" > "$HOSTS_DENY"
+fi
+
 touch /var/log/guardiankey.log
 chmod 644 /var/log/guardiankey.log
 

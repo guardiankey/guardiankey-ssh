@@ -6,6 +6,8 @@ import configparser
 import datetime
 import tail
 import subprocess
+import os
+import signal
 
 configp = configparser.ConfigParser()
 configp.read('/etc/guardiankey/gk.conf')
@@ -13,9 +15,48 @@ GKconfig = configp['REGISTER']
 def doAction(ip):
     now = datetime.datetime.now()
     blockdate = int(now.timestamp())
-    ipline = f"{ip}#{blockdate}\n"
+    ipline = f"sshd,ssh: {ip} #{blockdate}\n"
     with open('/etc/guardiankey/ssh.deny', 'a') as f:
         f.write(ipline)
+
+
+def _kill_ssh_sessions(username, ip):
+    try:
+        res = subprocess.run(
+            ['ps', '-eo', 'pid,user,args'],
+            capture_output=True, text=True, timeout=2
+        )
+        if res.returncode != 0:
+            return
+        lines = res.stdout.splitlines()
+        candidates = []
+        for line in lines[1:]:
+            parts = line.split(None, 2)
+            if len(parts) < 3:
+                continue
+            pid, user, args = parts
+            if user != username:
+                continue
+            if 'sshd:' not in args:
+                continue
+            candidates.append((pid, args))
+
+        if not candidates:
+            return
+
+        matched = []
+        for pid, args in candidates:
+            if f"rhost={ip}" in args or f"@{ip}" in args:
+                matched.append(pid)
+
+        target_pids = matched if matched else [pid for pid, _ in candidates]
+        for pid in target_pids:
+            try:
+                os.kill(int(pid), signal.SIGKILL)
+            except Exception:
+                continue
+    except Exception:
+        return
 
 
 def send(line):
@@ -31,6 +72,7 @@ def send(line):
             with open('/var/log/guardiankey.log', 'a') as f:
                 f.write(json.dumps(result) + '\n')
             doAction(jlog.get('ip'))
+            _kill_ssh_sessions(jlog.get('user'), jlog.get('ip'))
 
         return result
 
