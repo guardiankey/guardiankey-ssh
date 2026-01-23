@@ -68,6 +68,11 @@ cp -a usr/lib/guardiankey/*.py "$INSTALL_LIB/"
 chmod 755 "$INSTALL_LIB"
 chmod 644 "$INSTALL_LIB"/*.py
 
+if [ -f etc/cron.d/guardiankey ]; then
+    cp -a etc/cron.d/guardiankey /etc/cron.d/guardiankey
+    chmod 644 /etc/cron.d/guardiankey
+fi
+
 if [ -f "$INSTALL_ETC/gk.conf" ]; then
     cp -a "$INSTALL_ETC/gk.conf" "$INSTALL_ETC/gk.conf.bak.$(date +%Y%m%d%H%M%S)"
 fi
